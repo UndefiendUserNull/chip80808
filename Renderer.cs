@@ -9,7 +9,7 @@ public class Renderer
     private const int WINDOW_HEIGHT = 32 * SCALE;
 
     private Chip8? chip8 = null;
-    public void StartDisplay(Chip8 p_chip8, string romPath, int cycles = 15)
+    public void StartDisplay(Chip8 p_chip8, string romPath, int cycles = 10)
     {
         chip8 = p_chip8;
 
@@ -53,13 +53,13 @@ public class Renderer
         if (chip8 == null) return;
 
         // row 0: Up 2 3 4  ->  CHIP-8 1 2 3 C
-        chip8.SetKey(0x1, Raylib.IsKeyDown(KeyboardKey.Up));
+        chip8.SetKey(0x1, Raylib.IsKeyDown(KeyboardKey.Q));
         chip8.SetKey(0x2, Raylib.IsKeyDown(KeyboardKey.Two));
         chip8.SetKey(0x3, Raylib.IsKeyDown(KeyboardKey.Three));
         chip8.SetKey(0xC, Raylib.IsKeyDown(KeyboardKey.Four));
 
         // row 1: P1-Down P2-Down E R  ->  CHIP-8 4 5 6 D
-        chip8.SetKey(0x4, Raylib.IsKeyDown(KeyboardKey.Down));
+        chip8.SetKey(0x4, Raylib.IsKeyDown(KeyboardKey.Eight));
         chip8.SetKey(0x5, Raylib.IsKeyDown(KeyboardKey.W));
         chip8.SetKey(0x6, Raylib.IsKeyDown(KeyboardKey.E));
         chip8.SetKey(0xD, Raylib.IsKeyDown(KeyboardKey.R));

@@ -197,6 +197,8 @@ public class Chip8
                 }
                 break;
 
+
+
             case 0xD000:
                 DrawSprite();
                 break;
