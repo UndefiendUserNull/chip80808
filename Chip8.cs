@@ -14,24 +14,35 @@ public class Chip8
     private int NN = 0; // 0x00FF
     private int NNN = 0; // 0x0FFF
     private int F = 0; // Overflow
-    private int cycles = 0; // Timer cycles
     private readonly Stack<ushort> stack = [];
     private Random rng = new();
     private byte delayTimer = 0;
     private byte soundTimer = 0;
     private readonly bool[] keypad = new bool[16];
-    private bool[,] display = new bool[32, 64];
+    private bool[,] display = new bool[64, 32];
 
-    private const int CYCLE_DECREMENT = 10;
-    public void Start(string romPath)
+    public void LoadRom(string romPath)
     {
         var rom = File.ReadAllBytes(romPath);
         Array.Copy(rom, 0, memory, 0x200, rom.Length);
 
-        for (int i = 0; i < 2000; i++)
+    }
+    public bool IsPixelOn(int x, int y)
+    {
+        return display[x, y];
+    }
+    public void Start(int cycels)
+    {
+        for (int i = 0; i < cycels; i++)
         {
             Cycle();
         }
+    }
+
+    public void TickTimers()
+    {
+        if (delayTimer > 0) delayTimer--;
+        if (soundTimer > 0) soundTimer--;
     }
 
     private void Cycle()
@@ -147,29 +158,46 @@ public class Chip8
             case 0x9000: // V[X] EQUAL V[Y]
                 if (V[X] != V[Y]) IncrementPC();
                 break;
-
-
-
-            case 0xC000: // RANDOM 0-255 AND NN
-                V[X] = (byte)(rng.Next(0, 256) & NN);
-                break;
             case 0xA000: // SET INDEX REGISTER
                 I = (ushort)NNN;
                 break;
             case 0xB000: // JUMP TO NNN + V[0]
                 PC = (ushort)(NNN + V[0]);
                 break;
+            case 0xC000: // RANDOM 0-255 AND NN
+                V[X] = (byte)(rng.Next(0, 256) & NN);
+                break;
+            case 0xD000:
+                DrawSprite();
+                break;
             default:
                 Console.WriteLine($"Unhandled opcode: 0x{opcode:X4} at PC=0x{(PC - 2):X3}");
                 break;
 
         }
+    }
 
-        cycles++;
-        if (cycles % CYCLE_DECREMENT == 0)
+    private void DrawSprite()
+    {
+        V[0xF] = 0;
+        for (int r = 0; r < N; r++)
         {
-            if (delayTimer > 0) delayTimer--;
-            if (soundTimer > 0) soundTimer--;
+            byte sprite = memory[I + r];
+            for (int c = 0; c <= 7; c++)
+            {
+                var bit = (sprite >> (7 - c)) & 1;
+                if (bit == 1)
+                {
+                    int px = (V[X] + c) % 64;
+                    int py = (V[Y] + r) % 32;
+
+                    if (display[px, py]) // Collision happen
+                    {
+                        V[0xF] = 1;
+                    }
+                    display[px, py] = !display[px, py]; // Flip
+                }
+            }
         }
     }
 
@@ -185,7 +213,13 @@ public class Chip8
 
     private void Clear()
     {
-        display = new bool[32, 64];
+        for (int i = 0; i < display.GetLength(0); i++)
+        {
+            for (int j = 0; j < display.GetLength(1); j++)
+            {
+                display[i, j] = false;
+            }
+        }
     }
 
     private static void PrintInstruction(ushort pc, ushort opcode)

@@ -1,14 +1,14 @@
-﻿namespace Chip80808
+﻿namespace Chip80808;
+
+internal static class Program
 {
-    internal static class Program
+    private static readonly Chip8 chip = new();
+    private static readonly Renderer display = new();
+
+    public static void Main(string[] args)
     {
-        static Chip8 chip = new();
+        var romPath = args[1];
 
-        public static void Main(string[] args)
-        {
-            var romPath = args[1];
-
-            chip.Start(romPath);
-        }
+        display.StartDisplay(chip, romPath);
     }
 }
