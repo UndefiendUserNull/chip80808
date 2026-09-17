@@ -213,13 +213,7 @@ public class Chip8
 
     private void Clear()
     {
-        for (int i = 0; i < display.GetLength(0); i++)
-        {
-            for (int j = 0; j < display.GetLength(1); j++)
-            {
-                display[i, j] = false;
-            }
-        }
+        display = new bool[64, 32];
     }
 
     private static void PrintInstruction(ushort pc, ushort opcode)
