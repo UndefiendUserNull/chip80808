@@ -112,27 +112,32 @@ public class Chip8
                     case 0x3: // BITWISE XOR
                         V[X] ^= V[Y];
                         break;
-                    case 0x4: // INCREMENT ON CARRY
-                        if (V[X] + V[Y] > 255) V[F] = 1;
+                    case 0x4: // ADD ON CARRY
+                        int sum = V[X] + V[Y];
+                        V[F] = (byte)(sum > 255 ? 1 : 0);
+                        V[X] = (byte)sum;
                         break;
-                    case 0x5:
-                        if ((int)((int)V[X] - (int)V[Y]) < 0)
-                        {
-                            if (V[F] == 0) V[F] = 1;
-                            else if (V[F] == 1) V[F] = 0;
-                            V[X] = (byte)(((int)V[X] - (int)V[Y]) + 255);
-                        }
+
+                    case 0x5: // SUBTRACT ON BORROW
+                        int diff = V[X] - V[Y];
+                        V[F] = (byte)(diff >= 0 ? 1 : 0);
+                        V[X] = (byte)diff;
                         break;
-                    case 0x6:
-                        V[X] >>= V[Y];
-                        V[F] = (byte)((V[X] + V[Y]) - 255);
+
+                    case 0x6: // SHR
+                        V[F] = (byte)(V[Y] & 0x1);
+                        V[X] = (byte)(V[Y] >> 1);
                         break;
-                    case 0x7:
-                        if (V[F] == 1) V[F] = 0;
+
+                    case 0x7: // SUBN
+                        int rdiff = V[Y] - V[X];
+                        V[F] = (byte)(rdiff >= 0 ? 1 : 0);
+                        V[X] = (byte)rdiff;
                         break;
-                    case 0xE:
-                        V[X] <<= V[Y];
-                        V[F] = (byte)((V[X] - V[Y]) + 255);
+
+                    case 0xE: // SHL
+                        V[F] = (byte)((V[Y] >> 7) & 0x1);
+                        V[X] = (byte)(V[Y] << 1);
                         break;
                 }
                 break;
