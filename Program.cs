@@ -6,7 +6,7 @@
 
         public static void Main(string[] args)
         {
-            var romPath = args[0];
+            var romPath = args[1];
 
             chip.Start(romPath);
         }
