@@ -14,12 +14,15 @@ public class Chip8
     private int NN = 0; // 0x00FF
     private int NNN = 0; // 0x0FFF
     private int F = 0; // Overflow
+    private int cycles = 0; // Timer cycles
     private readonly Stack<ushort> stack = [];
     private Random rng = new();
     private byte delayTimer = 0;
     private byte soundTimer = 0;
     private readonly bool[] keypad = new bool[16];
     private bool[,] display = new bool[32, 64];
+
+    private const int CYCLE_DECREMENT = 10;
     public void Start(string romPath)
     {
         var rom = File.ReadAllBytes(romPath);
@@ -160,6 +163,13 @@ public class Chip8
                 Console.WriteLine($"Unhandled opcode: 0x{opcode:X4} at PC=0x{(PC - 2):X3}");
                 break;
 
+        }
+
+        cycles++;
+        if (cycles % CYCLE_DECREMENT == 0)
+        {
+            if (delayTimer > 0) delayTimer--;
+            if (soundTimer > 0) soundTimer--;
         }
     }
 
