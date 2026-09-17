@@ -45,6 +45,11 @@ public class Chip8
         if (soundTimer > 0) soundTimer--;
     }
 
+    public void SetKey(int index, bool isSet)
+    {
+        keypad[index] = isSet;
+    }
+
     private void Cycle()
     {
         ushort opcode = (ushort)((memory[PC] << 8) | memory[PC + 1]);
@@ -167,6 +172,31 @@ public class Chip8
             case 0xC000: // RANDOM 0-255 AND NN
                 V[X] = (byte)(rng.Next(0, 256) & NN);
                 break;
+            case 0xE000:
+                switch (NN)
+                {
+                    case 0x9E:
+                        if (keypad[V[X]]) IncrementPC();
+                        break;
+                    case 0xA1:
+                        if (!keypad[V[X]]) IncrementPC();
+                        break;
+                    case 0x0A: // FX0A
+                        bool keyFound = false;
+                        for (int k = 0; k < 16; k++)
+                        {
+                            if (keypad[k])
+                            {
+                                V[X] = (byte)k;
+                                keyFound = true;
+                                break;
+                            }
+                        }
+                        if (!keyFound) PC -= 2;
+                        break;
+                }
+                break;
+
             case 0xD000:
                 DrawSprite();
                 break;
